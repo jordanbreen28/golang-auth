@@ -10,10 +10,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
+func init() {
 	loadEnv()
 	loadDatabase()
+}
 
+func main() {
 	router := gin.Default()
 
 	superGroup := router.Group("/api/v1")
@@ -22,7 +24,7 @@ func main() {
 		{
 			userGroup.POST("/login", controllers.LoginUser)
 			// new `GET /users` route associated with our `getUsers` function
-			userGroup.GET("/", controllers.GetAllUsers)
+			// userGroup.GET("/", controllers.GetAllUsers)
 			userGroup.POST("/", controllers.RegisterUser)
 		}
 
