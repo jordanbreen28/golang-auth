@@ -22,10 +22,11 @@ func main() {
 	{
 		userGroup := superGroup.Group("/users")
 		{
-			userGroup.POST("/login", controllers.LoginUser)
-			// new `GET /users` route associated with our `getUsers` function
-			// userGroup.GET("/", controllers.GetAllUsers)
 			userGroup.POST("/", controllers.RegisterUser)
+			userGroup.POST("/login", controllers.LoginUser)
+			userGroup.GET("/", controllers.GetAllUsers)
+			userGroup.GET("/:id", controllers.GetUserById)
+
 		}
 
 		// todoGroup := superGroup.Group("/todo")
