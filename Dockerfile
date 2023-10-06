@@ -3,6 +3,8 @@ FROM golang:1.19
 
 WORKDIR /go/src/app
 
+ARG APP_ENV
+
 COPY . .
 
 RUN go mod download

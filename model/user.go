@@ -37,6 +37,25 @@ func (user *User) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
+func GetAllUsers() ([]User, error) {
+
+	var users []User
+	err := database.Database.Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func GetUserById(id int) (User, error) {
+	var user User
+	err := database.Database.Find(&user, id).Error
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
 func VerifyPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

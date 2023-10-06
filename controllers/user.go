@@ -1,18 +1,29 @@
 package controllers
 
 import (
-	"api/database"
 	"api/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetAllUsers(c *gin.Context) {
-	var users []model.User
-	database.Database.Find(&users)
+	var users = []model.User{}
+	users, _ = model.GetAllUsers()
+	c.JSON(http.StatusOK, gin.H{"users": users})
+}
 
-	c.JSON(http.StatusOK, users)
+func GetUserById(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	var user = model.User{}
+	user, _ = model.GetUserById(id)
+	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
 func RegisterUser(c *gin.Context) {
