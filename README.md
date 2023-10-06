@@ -26,4 +26,4 @@ $ curl -vX POST http://0.0.0.0:8000/api/v1/users -d @user.json \
 --header "Content-Type: application/json"
 ```
 
-Where `users.json` is a valid JSON object containing your form data.
+Where `user.json` is a valid JSON object containing your form data.
