@@ -77,6 +77,54 @@ func LoginUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged in."})
 }
 
+func UpdateUser(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var input model.UpdateUser
+
+	user := model.User{}
+	user, _ = model.GetUserById(id)
+
+	user.Username = input.Username
+	user.Email = input.Email
+	user.Age = input.Age
+	user.Password = input.Password
+
+	updatedUser, err := user.UpdateUserDetails(&user)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": updatedUser})
+}
+
+func DeleteUser(c *gin.Context) {
+	var user model.User
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	user, err = user.DeleteUser(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// unset cookie
+	c.SetCookie("Autorization", "", -1, "/", "", false, true)
+	c.JSON(http.StatusNoContent, gin.H{})
+}
+
 func Logout(c *gin.Context) {
 	// unset cookie
 	c.SetCookie("Autorization", "", -1, "/", "", false, true)

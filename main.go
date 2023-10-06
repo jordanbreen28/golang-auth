@@ -30,13 +30,9 @@ func main() {
 			userGroup.POST("/logout", controllers.Logout)
 			userGroup.GET("/", controllers.GetAllUsers)
 			userGroup.GET("/:id", controllers.GetUserById)
-
+			userGroup.PUT("/:id", controllers.UpdateUser)
+			userGroup.DELETE("/:id", controllers.DeleteUser)
 		}
-
-		// todoGroup := superGroup.Group("/todo")
-		// {
-		// 	// todo group handlers
-		// }
 	}
 	router.Run("0.0.0.0:8080")
 }

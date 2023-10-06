@@ -37,6 +37,14 @@ func (user *User) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
+func (u *User) UpdateUserDetails(updatedUser *User) (*User, error) {
+	err := database.Database.Save(&updatedUser).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return updatedUser, nil
+}
+
 func GetAllUsers() ([]User, error) {
 
 	var users []User
@@ -86,4 +94,13 @@ func (user *User) Login(username string, password string) (string, error) {
 
 	return token, nil
 
+}
+
+func (user *User) DeleteUser(id int) (User, error) {
+	err := database.Database.Delete(&user, id).Error
+
+	if err != nil {
+		return User{}, err
+	}
+	return User{}, nil
 }
