@@ -3,6 +3,7 @@ package main
 import (
 	"api/controllers"
 	"api/database"
+	"api/middleware"
 	"api/model"
 	"log"
 
@@ -24,6 +25,9 @@ func main() {
 		{
 			userGroup.POST("/", controllers.RegisterUser)
 			userGroup.POST("/login", controllers.LoginUser)
+			// below routes are protected by jwt auth middleware
+			userGroup.Use(middleware.JwtAuthMiddleware())
+			userGroup.POST("/logout", controllers.Logout)
 			userGroup.GET("/", controllers.GetAllUsers)
 			userGroup.GET("/:id", controllers.GetUserById)
 

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -48,11 +47,12 @@ func ExtractToken(c *gin.Context) string {
 	if token != "" {
 		return token
 	}
-	bearerToken := c.Request.Header.Get("Authorization")
-	if len(strings.Split(bearerToken, " ")) == 2 {
-		return strings.Split(bearerToken, " ")[1]
+
+	bearerToken, err := c.Cookie("Autorization")
+	if err != nil {
+		return ""
 	}
-	return ""
+	return bearerToken
 }
 
 func ExtractTokenID(c *gin.Context) (uint, error) {
