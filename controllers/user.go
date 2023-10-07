@@ -87,15 +87,15 @@ func UpdateUser(c *gin.Context) {
 
 	var input model.UpdateUser
 
+	c.Bind(&input)
+
 	user := model.User{}
-	user, _ = model.GetUserById(id)
-
-	user.Username = input.Username
-	user.Email = input.Email
-	user.Age = input.Age
-	user.Password = input.Password
-
-	updatedUser, err := user.UpdateUserDetails(&user)
+	user, err = model.GetUserById(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	updatedUser, err := user.UpdateUserDetails(&user, input)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -114,7 +114,7 @@ func DeleteUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
-	user, err = user.DeleteUser(id)
+	user, err = user.DeleteUser(id, c)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

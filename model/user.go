@@ -2,11 +2,13 @@ package model
 
 import (
 	"api/database"
+	"fmt"
 	"html"
 	"strings"
 
 	"api/utils/token"
 
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -37,8 +39,13 @@ func (user *User) BeforeSave(*gorm.DB) error {
 	return nil
 }
 
-func (u *User) UpdateUserDetails(updatedUser *User) (*User, error) {
-	err := database.Database.Save(&updatedUser).Error
+func (user *User) UpdateUserDetails(updatedUser *User, input UpdateUser) (*User, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return &User{}, err
+	}
+	input.Password = string(passwordHash)
+	err = database.Database.Model(&updatedUser).Updates(input).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -73,34 +80,48 @@ func (user *User) Login(username string, password string) (string, error) {
 	var err error
 
 	u := User{}
-
+	// find the user with the username
 	err = database.Database.Model(User{}).Where("username = ?", username).Take(&u).Error
 
+	// check if the user exists
 	if err != nil {
 		return "", err
 	}
-
+	// verify the password
 	err = VerifyPassword(password, u.Password)
-
+	// check if the password is correct
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
-
+	// generate a jwt token
 	token, err := token.GenerateToken(u.ID)
-
+	// check if there was an error generating the token
 	if err != nil {
 		return "", err
 	}
-
+	// return the token
 	return token, nil
-
 }
 
-func (user *User) DeleteUser(id int) (User, error) {
-	err := database.Database.Delete(&user, id).Error
-
+func (user *User) DeleteUser(id int, c *gin.Context) (User, error) {
+	var tokenId uint
+	var err error
+	// extract the token id from the request
+	tokenId, err = token.ExtractTokenID(c)
+	// check if the token id is the same as the user id to be deleted
+	if tokenId != uint(id) {
+		return User{}, fmt.Errorf("You are not authorized to delete this user.")
+	}
+	// check if the token id is valid
+	if err != nil || tokenId == 0 {
+		return User{}, err
+	}
+	// Permenately delete the user at request
+	err = database.Database.Unscoped().Delete(&user, id).Error
+	// check if there was an error deleting the user
 	if err != nil {
 		return User{}, err
 	}
+	// return an empty user and nil error
 	return User{}, nil
 }
